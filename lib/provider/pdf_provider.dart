@@ -8,13 +8,15 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 class PdfProvider extends ChangeNotifier {
   String selectedFileBase64 = "";
   InAppWebViewController? _webViewController;
-  bool isPdfViewLoaded = false;
   int pdfPagesCount = 0;
   int currentPage = 1;
   TextEditingController pdfPageController = TextEditingController();
 
   Future<bool> selectPdfFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowedExtensions: ['pdf'],
+      type: FileType.custom,
+    );
     if (result != null && result.files.isNotEmpty) {
       final selectedFile = File(result.files.single.path!);
       selectedFileBase64 = await convertBase64(selectedFile);
@@ -34,21 +36,8 @@ class PdfProvider extends ChangeNotifier {
     _webViewController?.evaluateJavascript(
       source: "renderPdf('$selectedFileBase64')",
     );
-    addLoadingListener();
     addTotalPdfPagesListener();
     addCurrentPageListener();
-  }
-
-  void addLoadingListener() {
-    _webViewController?.addJavaScriptHandler(
-      handlerName: "loadingListener",
-      callback: (List data) {
-        if (data.isNotEmpty && data.first is bool) {
-          isPdfViewLoaded = data.first;
-          notifyListeners();
-        }
-      },
-    );
   }
 
   void addTotalPdfPagesListener() {
