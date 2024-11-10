@@ -2,10 +2,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "pdf.worker.js";
 
 const container = document.getElementById("pdf-container");
 
-let currentScale = 1;
 let pdfDoc = null;
 let currentPage = 1;
-let selectedPdfText = "";
 
 function renderPage(pageNum) {
   pdfDoc.getPage(pageNum).then((page) => {
@@ -22,7 +20,6 @@ function renderPage(pageNum) {
     };
 
     page.render(renderContext).promise.then(() => {
-      window.flutter_inappwebview.callHandler("loadingListener", false);
       return page.getTextContent();
     }).then((textContent) => {
       const textLayer = document.createElement("div");
